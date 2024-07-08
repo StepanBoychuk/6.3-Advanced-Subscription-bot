@@ -2,14 +2,13 @@ import { Hears, Help, InjectBot, On, Start, Update } from 'nestjs-telegraf';
 import { Context, Telegraf } from 'telegraf';
 import { BotService } from './bot.service';
 import { BotKeyboard } from './bot.keyboard';
-import { ForecastService } from 'src/forecast/forecast.service';
 
 @Update()
 export class BotUpdate {
   constructor(
     @InjectBot() private readonly bot: Telegraf<Context>,
-    private botService: BotService,
-    private forecastService: ForecastService,
+    private readonly botService: BotService,
+    private readonly botKeyboard: BotKeyboard,
   ) {}
 
   @Start()
@@ -23,7 +22,7 @@ export class BotUpdate {
   @Help()
   async helpCommand(ctx: Context) {
     ctx.reply(
-      `Here are list of available commands:\n - Subscription: to subscripe/unsubscribe from daily forecast.\n - Info: information about you subscription. \n - Change location: to change location for your forecast. \n - Set time: tip on how to set the time of the daily forecast (Just send me the message with time in hh:mm format, f.e 08:00 or 11:45)`,
+      `Here are list of available commands:\n - Subscription: to subscripe/unsubscribe from daily forecast.\n - Info: information about you subscription. \n - Change location button: to change location for your forecast. \n - Set time button: tip on how to set the time of the daily forecast (Just send me the message with time in hh:mm format, f.e 08:00 or 11:45)`,
     );
   }
 
@@ -46,15 +45,21 @@ export class BotUpdate {
     ctx.reply(response.text, response.keyboard);
   }
 
-  @Hears('Subscription')
-  async subscription(ctx: Context) {
+  @Hears('Subscribe')
+  async subscribe(ctx: Context) {
+    const response = await this.botService.subscriptionCommand(ctx);
+    ctx.reply(response.text, response.keyboard);
+  }
+
+  @Hears('Unsubscribe')
+  async unsubscribe(ctx: Context) {
     const response = await this.botService.subscriptionCommand(ctx);
     ctx.reply(response.text, response.keyboard);
   }
 
   @Hears('Back')
   async back(ctx: Context) {
-    ctx.reply('Going back', BotKeyboard.menu());
+    ctx.reply('Going back', await this.botKeyboard.menu(ctx.from.id));
   }
 
   @On('text')

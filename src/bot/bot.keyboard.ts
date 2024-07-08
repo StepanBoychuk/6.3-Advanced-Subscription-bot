@@ -1,6 +1,10 @@
+import { Injectable } from '@nestjs/common';
+import { UserService } from 'src/user/user.service';
 import { Markup } from 'telegraf';
 
+@Injectable()
 export class BotKeyboard {
+  constructor(private readonly userService: UserService) {}
   static sendLocation() {
     return Markup.keyboard([
       Markup.button.locationRequest('Send location'),
@@ -11,8 +15,12 @@ export class BotKeyboard {
     return Markup.keyboard(['Set time']).resize();
   }
 
-  static menu() {
-    return Markup.keyboard(['Subscription', 'Info']).resize();
+  async menu(userId) {
+    const isSubscribed = await this.userService.checkSubscription(userId);
+    if (isSubscribed) {
+      return Markup.keyboard(['Unsubscribe', 'Info']).resize();
+    }
+    return Markup.keyboard(['Subscribe', 'Info']).resize();
   }
 
   static info() {

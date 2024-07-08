@@ -2,8 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './schemas/user.schema';
 import * as mongoose from 'mongoose';
-import { CreateUserDto } from './dto/createUser.dto';
-import { UpdateUserDto } from './dto/updateUser.dto';
+import { UserDto } from './dto/user.dto';
 
 @Injectable()
 export class UserService {
@@ -13,11 +12,11 @@ export class UserService {
     return await this.userModel.findOne({ userId: userId });
   }
 
-  async create(userData: CreateUserDto) {
+  async create(userData: UserDto) {
     await this.userModel.create(userData);
   }
 
-  async update(userId: number, updateData: UpdateUserDto) {
+  async update(userId: number, updateData: UserDto) {
     await this.userModel.findOneAndUpdate({ userId: userId }, updateData);
   }
 
@@ -25,5 +24,10 @@ export class UserService {
     const user = await this.userModel.findOne({ userId: userId });
     user.isSubscribed = !user.isSubscribed;
     await user.save();
+  }
+
+  async checkSubscription(userId: number) {
+    const { isSubscribed } = await this.userModel.findOne({ userId: userId });
+    return isSubscribed;
   }
 }

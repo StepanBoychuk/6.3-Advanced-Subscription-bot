@@ -1,25 +1,27 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from 'src/user/dto/createUser.dto';
-import { UpdateUserDto } from 'src/user/dto/updateUser.dto';
+import { UserDto } from 'src/user/dto/user.dto';
 import { UserService } from 'src/user/user.service';
 import { Context } from 'telegraf';
 import { BotKeyboard } from './bot.keyboard';
 
 @Injectable()
 export class BotService {
-  constructor(private userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly botKeyboard: BotKeyboard,
+  ) {}
 
   async locationCommand(ctx: Context) {
     const ifUserExist = await this.userService.findOne(ctx.from.id);
     const msg: any = ctx.message; //In other way Typescript doesn't see ctx.message.location field
-    const updateUserData: UpdateUserDto = {
+    const updateUserData: UserDto = {
       location: {
         lat: msg.location.latitude,
         long: msg.location.longitude,
       },
     };
     if (!ifUserExist) {
-      const createUserData: CreateUserDto = {
+      const createUserData: UserDto = {
         ...updateUserData,
         userId: ctx.from.id,
       };
@@ -33,18 +35,18 @@ export class BotService {
     await this.userService.update(ctx.from.id, updateUserData);
     return {
       text: 'Your location has been updated',
-      keyboard: BotKeyboard.menu(),
+      keyboard: await this.botKeyboard.menu(ctx.from.id),
     };
   }
 
   async setTimeCommand(ctx: Context) {
     const ifUserExist = await this.userService.findOne(ctx.from.id);
     const msg: any = ctx.message; //In other way Typescript doesn't see ctx.message.location field
-    const updateUserData: UpdateUserDto = {
+    const updateUserData: UserDto = {
       forecastTime: msg.text,
     };
     if (!ifUserExist) {
-      const createUserData: CreateUserDto = {
+      const createUserData: UserDto = {
         ...updateUserData,
         userId: ctx.from.id,
       };
@@ -54,7 +56,7 @@ export class BotService {
     }
     return {
       text: `Your daily forecast is set for ${msg.text}`,
-      keyboard: BotKeyboard.menu(),
+      keyboard: await this.botKeyboard.menu(ctx.from.id),
     };
   }
 
@@ -96,7 +98,7 @@ export class BotService {
       : 'You successfully subscribed';
     return {
       text: response,
-      keyboard: BotKeyboard.menu(),
+      keyboard: await this.botKeyboard.menu(ctx.from.id),
     };
   }
 }

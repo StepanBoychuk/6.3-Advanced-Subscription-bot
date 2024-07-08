@@ -17,13 +17,10 @@ export class SendForecast {
 
   @Cron(CronExpression.EVERY_MINUTE)
   async sendForecast() {
-    const currentTime = new Date()
-      .toLocaleTimeString('en-US', {
-        hour12: false,
-      })
-      .slice(0, 5);
+    const now = new Date();
+    const currentTime = `${now.getHours()}:${now.getMinutes()}`;
     const users = await this.userModel.find({ forecastTime: currentTime });
-    if (users[0]) {
+    if (Array.isArray(users)) {
       users.forEach(async (user) => {
         const response = await this.forecastService.weatherForecasResponse(
           user.location.lat,
