@@ -27,7 +27,7 @@ export class UserService {
   }
 
   async checkSubscription(userId: number) {
-    const { isSubscribed } = await this.userModel.findOne({ userId: userId });
-    return isSubscribed;
+    const user = await this.userModel.findOne({ userId: userId });
+    return user?.isSubscribed;
   }
 }

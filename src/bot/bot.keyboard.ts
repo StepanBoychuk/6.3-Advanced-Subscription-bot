@@ -17,10 +17,10 @@ export class BotKeyboard {
 
   async menu(userId) {
     const isSubscribed = await this.userService.checkSubscription(userId);
-    if (isSubscribed) {
-      return Markup.keyboard(['Unsubscribe', 'Info']).resize();
+    if (isSubscribed == undefined || !isSubscribed) {
+      return Markup.keyboard(['Subscribe', 'Info']).resize();
     }
-    return Markup.keyboard(['Subscribe', 'Info']).resize();
+    return Markup.keyboard(['Unsubscribe', 'Info']).resize();
   }
 
   static info() {
