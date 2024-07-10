@@ -1,5 +1,4 @@
-export class UserDto {
-  userId?: number;
+export class UpdateUserDto {
   location?: {
     lat: number;
     long: number;

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { UserDto } from 'src/user/dto/user.dto';
+import { CreateUserDto } from 'src/user/dto/createUser.dto';
+import { UpdateUserDto } from 'src/user/dto/updateUser.dto';
 import { UserService } from 'src/user/user.service';
 import { Context } from 'telegraf';
 import { BotKeyboard } from './bot.keyboard';
@@ -14,14 +15,14 @@ export class BotService {
   async locationCommand(ctx: Context) {
     const ifUserExist = await this.userService.findOne(ctx.from.id);
     const msg: any = ctx.message; //In other way Typescript doesn't see ctx.message.location field
-    const updateUserData: UserDto = {
+    const updateUserData: UpdateUserDto = {
       location: {
         lat: msg.location.latitude,
         long: msg.location.longitude,
       },
     };
     if (!ifUserExist) {
-      const createUserData: UserDto = {
+      const createUserData: CreateUserDto = {
         ...updateUserData,
         userId: ctx.from.id,
       };
@@ -42,11 +43,11 @@ export class BotService {
   async setTimeCommand(ctx: Context) {
     const ifUserExist = await this.userService.findOne(ctx.from.id);
     const msg: any = ctx.message; //In other way Typescript doesn't see ctx.message.location field
-    const updateUserData: UserDto = {
+    const updateUserData: UpdateUserDto = {
       forecastTime: msg.text,
     };
     if (!ifUserExist) {
-      const createUserData: UserDto = {
+      const createUserData: CreateUserDto = {
         ...updateUserData,
         userId: ctx.from.id,
       };
